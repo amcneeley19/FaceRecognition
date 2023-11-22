@@ -6,8 +6,11 @@ from keras.applications import VGG19
 from keras import models
 from keras.applications import VGG19
 
-class SRGAN():
+class SRGAN(Model):
     def __init__(self):
+        super(SRGAN, self).__init__()
+
+        self.built = False  
         self.lr_ip = Input(shape=(25,25,3))
         self.hr_ip = Input(shape=(225,225,3))
         #self.train_lr,self.train_hr = train_lr, train_hr#training images arrays normalized between 0 & 1
@@ -23,6 +26,20 @@ class SRGAN():
         [1e-3, 1], optimizer="adam")
 
 # Residual block
+    def compile_models(self):
+        # Compile discriminator
+        self.discriminator.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+        # Compile the generator
+        self.generator.compile(optimizer='adam', loss='your_generator_loss_function')
+
+        # Compile the GAN model
+        self.gan_model.compile(
+            loss=["binary_crossentropy", "mse"],
+            loss_weights=[1e-3, 1],
+            optimizer="adam"
+        )
+        self.built = True  # Add this line
 # Residual block
     def res_block(self,ip):
 
@@ -110,7 +127,7 @@ class SRGAN():
         return Model([lr_ip, hr_ip],[validity,gen_features])
 
     def train(self,train_lr,train_hr,test_lr,test_hr):
-        batch_size = 20
+        batch_size = 5
         train_lr_batches = []
         train_hr_batches = []
         for it in range(int(train_hr.shape[0] / batch_size)):

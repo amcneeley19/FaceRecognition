@@ -8,6 +8,8 @@ from sr_model import  SRGAN
 from keras.layers import Input
 from PIL import Image
 from skimage.transform import resize
+from keras.utils import plot_model
+
 
 def show_img(img, img2, t1, t2):
     fig, arr = plt.subplots(1, 2, figsize=(15, 15))
@@ -40,6 +42,16 @@ if __name__ == "__main__":
     X_train_hr = resize(X_train, (X_train.shape[0], 225,225,3))
 
     model = SRGAN()
+    model.compile_models()
+        # Visualize the generator model
+    plot_model(model.generator, to_file='generator.png', show_shapes=True, show_layer_names=True)
+
+    # Visualize the discriminator model
+    plot_model(model.discriminator, to_file='discriminator.png', show_shapes=True, show_layer_names=True)
+
+    # Visualize the GAN model
+    plot_model(model.gan_model, to_file='gan_model.png', show_shapes=True, show_layer_names=True)
+
     model.train(X_train_lr,X_train_hr,X_test_lr,X_test_hr)
 
     #i_h, i_w, i_c = target_shape_hr_img
